@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A playable edition of a classic story." />
+    <title>Storyloom — A playable classic</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Storyloom home">storyloom<span>.</span></a>
+        <div class="book-label"><span class="eyebrow">Now playing</span><strong>A Scandal in Bohemia</strong></div>
+        <button class="icon-button" id="library-button" aria-label="Open library"><span></span><span></span><span></span></button>
+      </header>
+
+      <section class="play-layout" aria-label="Playable story scene">
+        <aside class="story-sidebar">
+          <div class="chapter-counter"><span>01</span><span>/ 04</span></div>
+          <div class="vertical-rule"></div>
+          <p class="sidebar-copy">Walk through the room to uncover the opening of the case.</p>
+          <div class="relationship-card">
+            <span class="eyebrow">Scene objective</span>
+            <p>Investigate the sealed letter before the visitor arrives.</p>
+          </div>
+        </aside>
+
+        <article class="game-card">
+          <div class="game-meta">
+            <span class="eyebrow">Baker Street, London</span>
+            <span>Scene 1 of 4</span>
+          </div>
+          <div class="game-frame">
+            <div id="game-world" class="game-world" role="application" aria-label="Holmes's sitting room. Use arrow keys or WASD to move Watson. Press E near an object to interact." tabindex="0">
+              <div class="room-label">221B Baker Street</div>
+              <div id="entities-layer"></div>
+              <div id="player" class="player" aria-hidden="true"><i></i></div>
+              <div id="interaction-prompt" class="interaction-prompt" hidden><kbd>E</kbd><span></span></div>
+            </div>
+          </div>
+          <div class="game-copy">
+            <p class="scene-kicker" id="beat-title">An unexpected visitor</p>
+            <h1 id="scene-title">The familiar room is warm with lamplight.</h1>
+            <p id="narration">Rain taps softly at the windows. Holmes studies a letter sealed in heavy cream wax.</p>
+          </div>
+          <div id="dialogue" class="dialogue" hidden>
+            <span class="speaker" id="speaker"></span>
+            <p id="dialogue-text"></p>
+            <button id="close-dialogue">Continue</button>
+          </div>
+          <footer class="game-footer"><span id="status">Find something worth examining.</span><button id="reset-button">Reset room</button></footer>
+        </article>
+      </section>
+    </main>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
