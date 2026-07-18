@@ -1,8 +1,12 @@
 from fastapi import FastAPI, UploadFile, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from uuid import uuid4
-from database import init_db, save_book, get_book_details
+from database import init_db, save_book, get_book_details, get_chapters, save_chapters, get_scene_bible, get_playable_scene,get_playable_scenes, get_scene_progress, save_scene_progress
 from datetime import timezone, datetime
+from chapter_splitter import split_chapters
+from schemas import SceneBible, PlayableScene,SceneProgress
+from typing import List
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -10,6 +14,16 @@ async def lifespan(app: FastAPI):
     yield
     
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500"
+    ],
+    allow_headers=["*"],
+    allow_methods=["*"],
+    allow_credentials=False
+)
 
 
 
@@ -59,3 +73,70 @@ def get_book_details_by_id(book_id: str):
         "created_at": stored_creation_time,
         "preview": stored_file_contents[:200]
         }
+
+@app.get("/books/{book_id}/chapters")
+def get_chapters_by_id(book_id: str)->list:
+    chapter_metalist=[]
+    book_details=get_book_details(book_id)
+    if book_details is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book Not Found")
+    rows=get_chapters(book_id)
+    for row in rows:
+        chapter_dict={}
+        chapter_dict["chapter_id"]=row[0]
+        chapter_dict["position"]=row[1]
+        chapter_dict["source_number"]=row[2]
+        chapter_dict["title"]=row[3]
+        chapter_metalist.append(chapter_dict)
+    return chapter_metalist
+
+@app.post("/books/{book_id}/chapters")
+def  split_book_chapters(book_id:str)->dict:
+    book_details=get_book_details(book_id)
+    if book_details is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book Not Found")
+    stored_book_id,stored_filename,stored_filecontents,stored_char_count,stored_time=book_details
+    chapter_list=split_chapters(stored_filecontents)
+    if chapter_list is []:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,detail="Chapters not found")
+    save_chapters(book_id,chapter_list)
+    return {
+        "book_id": book_id,
+        "chapter_count": len(chapter_list)
+    }
+
+@app.get("/chapters/{chapter_id}/scene-bible")
+def get_scene_bible_by_id(chapter_id: str)->SceneBible:
+    scene_bible_output=get_scene_bible(chapter_id)
+    if scene_bible_output is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Scene Bible not found")
+    return scene_bible_output
+
+@app.get("/chapters/{chapter_id}/playable-scene")
+def get_playable_scene_by_id(chapter_id: str)->PlayableScene:
+    playable_scene_output=get_playable_scene(chapter_id)
+    if playable_scene_output is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Playable Scene not found")
+    return playable_scene_output
+
+@app.get("/chapters/{chapter_id}/playable-scenes")
+def get_playable_scenes_by_chapter(chapter_id: str)->List[PlayableScene]:
+    playable_scene_output=get_playable_scenes(chapter_id)
+    # if not playable_scene_output:
+    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Playable Scene not found")
+    return playable_scene_output
+
+@app.get("/playthroughs/{playthrough_id}/chapters/{chapter_id}/progress")
+def get_playthrough_progress(playthrough_id: str,chapter_id:str)->SceneProgress:
+    progress_output=get_scene_progress(playthrough_id,chapter_id)
+    if progress_output is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Progress not found")
+    return progress_output
+
+@app.put("/playthroughs/{playthrough_id}/chapters/{chapter_id}/progress")
+def update_scene_progress(playthrough_id: str, chapter_id: str,scene_progress:SceneProgress):
+    if playthrough_id!=scene_progress.playthrough_id or chapter_id!=scene_progress.chapter_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Path Ids must match Body Ids")
+    save_scene_progress(scene_progress)
+    return scene_progress
+

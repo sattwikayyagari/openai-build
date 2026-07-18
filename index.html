@@ -14,45 +14,60 @@
     <main class="app-shell">
       <header class="topbar">
         <a class="brand" href="#" aria-label="Storyloom home">storyloom<span>.</span></a>
-        <div class="book-label"><span class="eyebrow">Now playing</span><strong>A Scandal in Bohemia</strong></div>
+        <div class="book-label"><span class="eyebrow">Now playing</span><strong id="book-title">The Memoirs of Sherlock Holmes</strong></div>
         <button class="icon-button" id="library-button" aria-label="Open library"><span></span><span></span><span></span></button>
       </header>
 
       <section class="play-layout" aria-label="Playable story scene">
         <aside class="story-sidebar">
-          <div class="chapter-counter"><span>01</span><span>/ 04</span></div>
+          <div class="chapter-counter"><span id="chapter-index">01</span><span>/ <span id="chapter-total">04</span></span></div>
           <div class="vertical-rule"></div>
-          <p class="sidebar-copy">Walk through the room to uncover the opening of the case.</p>
+          <p class="sidebar-copy" id="sidebar-copy">Walk with arrow keys or WASD. Press E when prompted.</p>
           <div class="relationship-card">
             <span class="eyebrow">Scene objective</span>
-            <p>Investigate the sealed letter before the visitor arrives.</p>
+            <p id="scene-objective">Search the room. The story begins with what you notice.</p>
           </div>
         </aside>
 
-        <article class="game-card">
+        <article class="case-card" id="case-briefing" hidden>
+          <p class="scene-kicker">Case file 01</p>
+          <h1>Silver Blaze</h1>
+          <p>An urgent wire reaches Holmes at 221B Baker Street. A celebrated racehorse has vanished on Dartmoor, and its trainer has been found dead.</p>
+          <p>You are Dr. John Watson. Observe the rooms, investigate the clues, and follow Holmes's deductions.</p>
+          <button class="case-button" id="begin-case">Begin the case</button>
+        </article>
+
+        <article class="game-card" id="game-card" hidden>
           <div class="game-meta">
-            <span class="eyebrow">Baker Street, London</span>
-            <span>Scene 1 of 4</span>
+            <span class="eyebrow" id="scene-location">Loading scene…</span>
+            <span id="scene-number">Playable scene</span>
           </div>
           <div class="game-frame">
             <div id="game-world" class="game-world" role="application" aria-label="Holmes's sitting room. Use arrow keys or WASD to move Watson. Press E near an object to interact." tabindex="0">
-              <div class="room-label">221B Baker Street</div>
+              <div class="room-label" id="room-label">Storyloom</div>
               <div id="entities-layer"></div>
               <div id="player" class="player" aria-hidden="true"><i></i></div>
               <div id="interaction-prompt" class="interaction-prompt" hidden><kbd>E</kbd><span></span></div>
             </div>
           </div>
           <div class="game-copy">
-            <p class="scene-kicker" id="beat-title">An unexpected visitor</p>
-            <h1 id="scene-title">The familiar room is warm with lamplight.</h1>
-            <p id="narration">Rain taps softly at the windows. Holmes studies a letter sealed in heavy cream wax.</p>
+            <p class="scene-kicker" id="beat-title">Loading scene</p>
+            <h1 id="scene-title">Preparing Baker Street…</h1>
+            <p id="narration">Storyloom is loading the playable scene from its saved chapter data.</p>
           </div>
           <div id="dialogue" class="dialogue" hidden>
             <span class="speaker" id="speaker"></span>
             <p id="dialogue-text"></p>
             <button id="close-dialogue">Continue</button>
           </div>
-          <footer class="game-footer"><span id="status">Find something worth examining.</span><button id="reset-button">Reset room</button></footer>
+          <footer class="game-footer"><span id="status">Find something worth examining.</span><span class="footer-actions"><button id="continue-button" hidden>Continue journey</button><button id="reset-button">Reset room</button></span></footer>
+          <section class="case-complete" id="case-complete" hidden>
+            <p class="scene-kicker">Case solved</p>
+            <h1>Silver Blaze</h1>
+            <p>Holmes has connected the quiet stable, the trail across Dartmoor, and the final revelation.</p>
+            <p class="case-rating" id="case-rating"></p>
+            <button class="case-button" id="replay-case">Replay case</button>
+          </section>
         </article>
       </section>
     </main>
