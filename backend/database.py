@@ -45,6 +45,15 @@ def get_book_details(book_id:str):
     finally:
         conn.close()
 
+def get_chapter_details(chapter_id: str):
+    conn=sqlite3.connect('data/storyloom.db')
+    try:
+        output=conn.execute("SELECT chapter_id,book_id, position,title, content FROM chapters where chapter_id=?",(chapter_id,)).fetchone()
+        return output
+    finally:
+        conn.close()
+
+
 def save_chapters(book_id: str, chapters: list):
     conn=sqlite3.connect('data/storyloom.db')
     conn.execute("PRAGMA foreign_keys=ON")
@@ -99,7 +108,7 @@ def save_playable_scene(playable_scene:PlayableScene):
         position=playable_scene.position
         scene_json=playable_scene.model_dump_json()
         created_at=datetime.now(timezone.utc).isoformat()
-        conn.execute("INSERT INTO playable_scenes (scene_id,chapter_id,position,scene_json,created_at) VALUES (?,?,?,?,?) ON CONFLICT(scene_id) DO UPDATE SET chapter_id=excluded.chapter_id, position=excluded.position, scene_json=excluded.scene_json, created_at=excluded.created_at",(scene_id,chapter_id,position,scene_json,created_at))
+        conn.execute("INSERT INTO playable_scenes (scene_id,chapter_id,position,scene_json,created_at) VALUES (?,?,?,?,?) ON CONFLICT(chapter_id, position) DO UPDATE SET scene_id=excluded.scene_id, scene_json=excluded.scene_json, created_at=excluded.created_at",(scene_id,chapter_id,position,scene_json,created_at))
         conn.commit()
     finally:
         conn.close()       
@@ -150,5 +159,17 @@ def get_scene_progress(playthrough_id:str, chapter_id:str)->SceneProgress|None:
             return None
         scene_progress=SceneProgress.model_validate_json(progress_output[0])
         return scene_progress
+    finally:
+        conn.close()
+
+def delete_playable_scenes_after(chapter_id: str, position: int):
+    conn = sqlite3.connect("data/storyloom.db")
+
+    try:
+        conn.execute(
+            "DELETE FROM playable_scenes WHERE chapter_id=? AND position>?",
+            (chapter_id, position),
+        )
+        conn.commit()
     finally:
         conn.close()

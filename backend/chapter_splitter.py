@@ -46,9 +46,5 @@ def split_chapters(text: str)->list:
             return chapter_content
         else:
             return []
-if __name__=="__main__":
-    with open('backend/sample_chapter.txt','r') as f:
-        text=f.read()
-        print(split_chapters(text))
 
 

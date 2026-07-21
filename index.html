@@ -14,9 +14,33 @@
     <main class="app-shell">
       <header class="topbar">
         <a class="brand" href="#" aria-label="Storyloom home">storyloom<span>.</span></a>
-        <div class="book-label"><span class="eyebrow">Now playing</span><strong id="book-title">The Memoirs of Sherlock Holmes</strong></div>
+        <div class="book-label"><span class="eyebrow">Playable public-domain fiction</span><strong id="book-title">Storyloom</strong></div>
         <button class="icon-button" id="library-button" aria-label="Open library"><span></span><span></span><span></span></button>
       </header>
+
+      <section class="library-panel" id="library-panel" hidden aria-label="Import a public-domain text">
+        <div class="library-card">
+          <button class="library-close" id="close-library" type="button" aria-label="Close library">×</button>
+          <p class="scene-kicker">Create a playable edition</p>
+          <h1>Bring your own text to life.</h1>
+          <p class="landing-lede">Storyloom transforms a public-domain text into a source-grounded interactive story. Explore its scenes, uncover details, and make choices as the chapter unfolds.</p>
+          <ol class="landing-steps" aria-label="How Storyloom works">
+            <li><span>01</span>Upload a UTF-8 <code>.txt</code> book.</li>
+            <li><span>02</span>Choose one detected chapter.</li>
+            <li><span>03</span>Generate and play its story.</li>
+          </ol>
+          <p class="upload-heading">Create a playable edition</p>
+          <form id="upload-form" class="upload-form">
+            <label class="file-picker" for="book-file">
+              <span>Select a .txt file</span>
+              <input id="book-file" name="file" type="file" accept=".txt,text/plain" required />
+            </label>
+            <button class="case-button" type="submit">Import text</button>
+          </form>
+          <p class="upload-status" id="upload-status" aria-live="polite"></p>
+          <ol class="chapter-list" id="chapter-list"></ol>
+        </div>
+      </section>
 
       <section class="play-layout" aria-label="Playable story scene">
         <aside class="story-sidebar">
@@ -47,8 +71,22 @@
               <div class="room-label" id="room-label">Storyloom</div>
               <div id="entities-layer"></div>
               <div id="player" class="player" aria-hidden="true"><i></i></div>
+              <div id="magnifier" class="magnifier" hidden aria-hidden="true"></div>
+              <button id="magnifier-button" class="magnifier-button" type="button" aria-label="Enable magnifying glass" aria-pressed="false" title="Use magnifying glass" hidden><span></span></button>
               <div id="interaction-prompt" class="interaction-prompt" hidden><kbd>E</kbd><span></span></div>
             </div>
+            <section class="story-panel" id="story-panel" hidden aria-live="polite">
+              <span class="speaker" id="story-speaker"></span>
+              <p id="story-text"></p>
+              <button id="story-next">Continue</button>
+            </section>
+            <section class="deduction-panel" id="deduction-panel" hidden aria-live="polite">
+              <span class="speaker">Watson's deduction</span>
+              <h2 id="deduction-prompt"></h2>
+              <div class="deduction-options" id="deduction-options"></div>
+              <p class="deduction-response" id="deduction-response" hidden></p>
+              <button id="deduction-next" hidden>Hear Holmes</button>
+            </section>
           </div>
           <div class="game-copy">
             <p class="scene-kicker" id="beat-title">Loading scene</p>
@@ -60,13 +98,22 @@
             <p id="dialogue-text"></p>
             <button id="close-dialogue">Continue</button>
           </div>
+          <section class="inspection-reader" id="inspection-reader" hidden aria-live="polite" aria-label="Clue inspection">
+            <div class="inspection-paper" id="inspection-paper">
+              <span class="inspection-type" id="inspection-type"></span>
+              <h2 id="inspection-title"></h2>
+              <p class="inspection-subtitle" id="inspection-subtitle" hidden></p>
+              <div class="inspection-copy" id="inspection-copy"></div>
+              <button id="close-inspection">File this clue away</button>
+            </div>
+          </section>
           <footer class="game-footer"><span id="status">Find something worth examining.</span><span class="footer-actions"><button id="continue-button" hidden>Continue journey</button><button id="reset-button">Reset room</button></span></footer>
           <section class="case-complete" id="case-complete" hidden>
-            <p class="scene-kicker">Case solved</p>
-            <h1>Silver Blaze</h1>
-            <p>Holmes has connected the quiet stable, the trail across Dartmoor, and the final revelation.</p>
+            <p class="scene-kicker">Chapter complete</p>
+            <h1 id="completion-title">The chapter is complete.</h1>
+            <p id="completion-copy">You have reached the end of this playable chapter. Replay it to explore again, or return to the library to choose another chapter.</p>
             <p class="case-rating" id="case-rating"></p>
-            <button class="case-button" id="replay-case">Replay case</button>
+            <button class="case-button" id="replay-case">Replay chapter</button>
           </section>
         </article>
       </section>

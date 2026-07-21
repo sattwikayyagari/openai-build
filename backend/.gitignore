@@ -1,0 +1,9 @@
+.env
+__pycache__/
+sample_playable_scene.py
+sample_scene_bible.py
+sample_scene_progress.py
+sample_sherlock.py
+sample_text_chunker.py
+sample_chapter.txt
+test_storyboard_generation.py

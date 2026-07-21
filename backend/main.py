@@ -2,11 +2,15 @@ from fastapi import FastAPI, UploadFile, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from uuid import uuid4
-from database import init_db, save_book, get_book_details, get_chapters, save_chapters, get_scene_bible, get_playable_scene,get_playable_scenes, get_scene_progress, save_scene_progress
+from database import init_db, save_book,save_playable_scene, get_book_details, get_chapters, save_chapters, get_scene_bible, get_playable_scene,get_playable_scenes, get_scene_progress, save_scene_progress
 from datetime import timezone, datetime
 from chapter_splitter import split_chapters
-from schemas import SceneBible, PlayableScene,SceneProgress
+from schemas import SceneBible, PlayableScene,SceneProgress,SceneGenerationRequest
 from typing import List
+# from scene_generator import generate_playable_scene
+from scene_generator import generate_scene_plan
+from scene_builder import build_playable_scene_from_plan
+from chapter_pipeline import generate_playable_chapter
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -97,7 +101,7 @@ def  split_book_chapters(book_id:str)->dict:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book Not Found")
     stored_book_id,stored_filename,stored_filecontents,stored_char_count,stored_time=book_details
     chapter_list=split_chapters(stored_filecontents)
-    if chapter_list is []:
+    if not chapter_list:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,detail="Chapters not found")
     save_chapters(book_id,chapter_list)
     return {
@@ -139,4 +143,28 @@ def update_scene_progress(playthrough_id: str, chapter_id: str,scene_progress:Sc
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Path Ids must match Body Ids")
     save_scene_progress(scene_progress)
     return scene_progress
+
+@app.post("/chapters/{chapter_id}/playable-scenes/generate")
+def generate_playable_scene_by_id(chapter_id:str,generation_request:SceneGenerationRequest)->PlayableScene:
+    scene_bible_output=get_scene_bible(chapter_id)
+    if scene_bible_output is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Scene Bible not found")
+    scene_plan = generate_scene_plan(
+        chapter_excerpt=generation_request.chapter_excerpt,
+        scene_bible=scene_bible_output,
+        position=generation_request.position,
+        known_context=generation_request.chapter_excerpt,
+        locked_clue_content=[],
+    )
+    playable_scene=build_playable_scene_from_plan(scene_plan)
+    playable_scene.scene_id=f"{chapter_id}-scene-{generation_request.position}"
+    save_playable_scene(playable_scene)
+    return playable_scene
+
+@app.post("/chapters/{chapter_id}/generate")
+def generate_chapter_by_id(chapter_id: str) -> dict:
+    try:
+        return generate_playable_chapter(chapter_id)
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
 
