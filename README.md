@@ -45,27 +45,6 @@ ANTHROPIC_REVIEW_MODEL=claude-sonnet-4-5-20250929
 
 Groq and Ollama are also supported by the backend. Start the two local servers above, use the upload panel, import a UTF-8 `.txt` file, select a chapter, then choose **Generate playable chapter**.
 
-## What the project demonstrates
-
-- Chapter extraction from uploaded public-domain text
-- Long-chapter chunking and source-grounded storyboard generation
-- Retrieval of the relevant source chunks per scene
-- Structured scene plans validated with Pydantic
-- Evidence interactions, deductions, persistent playthrough progress, and replay
-- A static, browser-playable detective scene rendered from generated data
-
-## How Codex and GPT-5.6 were used
-
-Codex was used throughout the build to design the chapter-to-scene pipeline,
-implement the FastAPI and browser game integration, refine source-grounding
-rules, debug structured-output validation, and prepare the testing workflow.
-GPT-5.6 powered that implementation work in Codex.
-
-At runtime, Storyloom uses an LLM-backed generation pipeline to turn source
-text into a scene bible, a chapter storyboard, and structured playable scene
-plans. The plans are validated before they become the evidence, dialogue, and
-deductions shown in the game.
-
 ## Platforms
 
 The app has been developed and tested on Windows with PowerShell. It should run on macOS and Linux with Python 3.12+, uv, and equivalent commands for starting a static server.
